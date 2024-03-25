@@ -2,3 +2,6 @@ databaseChangeLog:
   - include:
       file: migrations/schema.sql
       relativeToChangeLogFile: true
+  - include:
+      file: migrations/data.sql
+      relativeToChangeLogFile: true

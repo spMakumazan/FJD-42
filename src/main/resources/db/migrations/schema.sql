@@ -1,6 +1,6 @@
 create table users (
     username varchar(20) primary key,
-    password varchar(20) not null
+    password varchar(255) not null
 );
 
 create table files (
