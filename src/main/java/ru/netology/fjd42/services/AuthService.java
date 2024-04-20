@@ -34,6 +34,7 @@ public class AuthService {
     }
 
     public void logout(String authToken) {
-        tokensRepository.deleteById(authToken);
+        String jwtToken = authToken.substring(7);
+        tokensRepository.deleteById(jwtToken);
     }
 }

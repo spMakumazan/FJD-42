@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class FileSchema {
     private String hash;
-    private String file;
+    private byte[] file;
 }

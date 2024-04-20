@@ -13,9 +13,8 @@ import lombok.NoArgsConstructor;
 public class Token {
 
     @Id
-    private String authToken;
+    private String authtoken;
 
-    @OneToOne
-    @JoinColumn(nullable = false)
+    @OneToOne(optional = false)
     private User user;
 }

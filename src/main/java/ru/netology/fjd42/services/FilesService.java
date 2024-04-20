@@ -24,7 +24,7 @@ public class FilesService {
 
     public void uploadFile(String authToken, String filename, FileSchema fileSchema) {
         User owner = getUserByToken(authToken);
-        String content = fileSchema.getFile();
+        byte[] content = fileSchema.getFile();
         File file = new File();
         try {
             file.setFilename(filename);
@@ -81,13 +81,14 @@ public class FilesService {
             throw new ErrorGettingFileListException("Error getting file list");
         }
         return fileList.stream()
-                .map(obj -> new FileSizeSchema(obj.getFilename(), obj.getContent().length()/8))
+                .map(obj -> new FileSizeSchema(obj.getFilename(), obj.getContent().length))
                 .limit(limit)
                 .toList();
     }
 
     private User getUserByToken(String authToken) {
-        Token token = tokensRepository.findById(authToken).orElseThrow(
+        String jwtToken = authToken.substring(7);
+        Token token = tokensRepository.findById(jwtToken).orElseThrow(
                 () -> new UnauthorizedErrorException("Unauthorized error")
         );
         return token.getUser();

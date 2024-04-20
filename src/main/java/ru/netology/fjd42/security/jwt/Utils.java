@@ -15,7 +15,7 @@ import java.util.Date;
 @Setter
 public class Utils {
 
-    private int expiration;
+    private long expiration;
     private String secret;
 
     public String generateToken(Authentication authentication) {
@@ -23,7 +23,7 @@ public class Utils {
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + expiration))
+                .setExpiration(new Date((new Date()).getTime() + expiration * 60 * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }

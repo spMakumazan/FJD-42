@@ -27,13 +27,20 @@ public class RequestFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String username = utils.getUsernameFromToken(request.getHeader("auth-token"));
-        User user = userDetailsService.loadUserByUsername(username);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                user, null, user.getAuthorities()
-        );
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        String authToken = request.getHeader("auth-token");
+        String username = null;
+        if (authToken != null) {
+            String jwtToken = authToken.substring(7);
+            username = utils.getUsernameFromToken(jwtToken);
+        }
+        if (username != null) {
+            User user = userDetailsService.loadUserByUsername(username);
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    user, null, user.getAuthorities()
+            );
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        }
         filterChain.doFilter(request, response);
     }
 }
