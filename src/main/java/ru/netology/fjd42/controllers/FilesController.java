@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.netology.fjd42.schemas.FileNameSchema;
-import ru.netology.fjd42.schemas.FileSchema;
 import ru.netology.fjd42.schemas.FileSizeSchema;
 import ru.netology.fjd42.services.FilesService;
 
@@ -21,8 +21,8 @@ public class FilesController {
     @PostMapping("/file")
     public ResponseEntity<?> uploadFile(@RequestHeader("auth-token") String authToken,
                                         @RequestParam("filename") String fileName,
-                                        @RequestBody FileSchema fileSchema) {
-        filesService.uploadFile(authToken, fileName, fileSchema);
+                                        @RequestParam("file") MultipartFile multipartFile) {
+        filesService.uploadFile(authToken, fileName, multipartFile);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -34,10 +34,10 @@ public class FilesController {
     }
 
     @GetMapping("/file")
-    public ResponseEntity<FileSchema> downloadFile(@RequestHeader("auth-token") String authToken,
-                                          @RequestParam("filename") String fileName) {
-        FileSchema fileSchema = filesService.downloadFile(authToken, fileName);
-        return ResponseEntity.ok(fileSchema);
+    public ResponseEntity<byte[]> downloadFile(@RequestHeader("auth-token") String authToken,
+                                               @RequestParam("filename") String fileName) {
+        byte[] fileContent = filesService.downloadFile(authToken, fileName);
+        return ResponseEntity.ok(fileContent);
     }
 
     @PutMapping("/file")
@@ -50,7 +50,7 @@ public class FilesController {
 
     @GetMapping("/list")
     public ResponseEntity<List<FileSizeSchema>> getAllFiles(@RequestHeader("auth-token") String authToken,
-                                         @RequestParam("limit") int limit) {
+                                                            @RequestParam("limit") int limit) {
         List<FileSizeSchema> fileSizeSchemaList = filesService.getAllFiles(authToken, limit);
         return ResponseEntity.ok(fileSizeSchemaList);
     }

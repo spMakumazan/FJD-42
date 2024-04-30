@@ -1,19 +1,23 @@
 package ru.netology.fjd42.services;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.PropertyValueException;
 import org.springframework.stereotype.Service;
-import ru.netology.fjd42.exceptions.*;
+import org.springframework.web.multipart.MultipartFile;
+import ru.netology.fjd42.exceptions.ErrorDeleteFileException;
+import ru.netology.fjd42.exceptions.ErrorInputDataException;
+import ru.netology.fjd42.exceptions.ErrorUploadFileException;
+import ru.netology.fjd42.exceptions.UnauthorizedErrorException;
 import ru.netology.fjd42.model.File;
 import ru.netology.fjd42.model.Token;
 import ru.netology.fjd42.model.User;
 import ru.netology.fjd42.repositories.FilesRepository;
 import ru.netology.fjd42.repositories.TokensRepository;
 import ru.netology.fjd42.schemas.FileNameSchema;
-import ru.netology.fjd42.schemas.FileSchema;
 import ru.netology.fjd42.schemas.FileSizeSchema;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,18 +26,18 @@ public class FilesService {
     private FilesRepository filesRepository;
     private TokensRepository tokensRepository;
 
-    public void uploadFile(String authToken, String filename, FileSchema fileSchema) {
+    public void uploadFile(String authToken, String filename, MultipartFile multipartFile) {
         User owner = getUserByToken(authToken);
-        byte[] content = fileSchema.getFile();
-        File file = new File();
         try {
+            byte[] content = multipartFile.getBytes();
+            File file = new File();
             file.setFilename(filename);
             file.setContent(content);
             file.setOwner(owner);
-        } catch (PropertyValueException exception) {
+            filesRepository.save(file);
+        } catch (IOException exception) {
             throw new ErrorInputDataException("Error input data");
         }
-        filesRepository.save(file);
     }
 
     public void deleteFile(String authToken, String fileName) {
@@ -47,7 +51,7 @@ public class FilesService {
         filesRepository.delete(file);
     }
 
-    public FileSchema downloadFile(String authToken, String fileName) {
+    public byte[] downloadFile(String authToken, String fileName) {
         User owner = getUserByToken(authToken);
         if (fileName == null) {
             throw new ErrorInputDataException("Error input data");
@@ -55,7 +59,8 @@ public class FilesService {
         File file = filesRepository.findByFilenameAndOwner(fileName, owner).orElseThrow(
                 () -> new ErrorDeleteFileException("Error download file")
         );
-        return new FileSchema(file.getFilename(), file.getContent());
+//        return new FileSchema(file.getFilename(), file.getContent());
+        return file.getContent();
     }
 
     public void editFilename(String authToken, String fileName, FileNameSchema fileNameSchema) {
@@ -77,13 +82,14 @@ public class FilesService {
             throw new ErrorInputDataException("Error input data");
         }
         List<File> fileList = filesRepository.findAllByOwner(owner);
-        if (fileList.isEmpty()) {
-            throw new ErrorGettingFileListException("Error getting file list");
-        }
+
+//        if (fileList.isEmpty()) {
+//            throw new ErrorGettingFileListException("Error getting file list");
+//        }
         return fileList.stream()
                 .map(obj -> new FileSizeSchema(obj.getFilename(), obj.getContent().length))
                 .limit(limit)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private User getUserByToken(String authToken) {

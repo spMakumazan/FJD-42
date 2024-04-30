@@ -47,7 +47,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of("http://localhost:8081"));
@@ -66,7 +66,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(eh -> eh.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .securityMatcher("/cloud/login").authorizeHttpRequests(ahr -> ahr.anyRequest().permitAll());
+                .authorizeHttpRequests(a -> a
+                        .requestMatchers("/cloud/login").permitAll()
+                        .anyRequest().authenticated());
+//                .securityMatcher("/cloud/login").authorizeHttpRequests(ahr -> ahr.anyRequest().permitAll());
         return http.build();
     }
 }
