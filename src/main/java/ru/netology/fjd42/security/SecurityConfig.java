@@ -69,7 +69,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/cloud/login").permitAll()
                         .anyRequest().authenticated());
-//                .securityMatcher("/cloud/login").authorizeHttpRequests(ahr -> ahr.anyRequest().permitAll());
         return http.build();
     }
 }

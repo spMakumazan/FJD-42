@@ -3,10 +3,7 @@ package ru.netology.fjd42.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.netology.fjd42.exceptions.ErrorDeleteFileException;
-import ru.netology.fjd42.exceptions.ErrorInputDataException;
-import ru.netology.fjd42.exceptions.ErrorUploadFileException;
-import ru.netology.fjd42.exceptions.UnauthorizedErrorException;
+import ru.netology.fjd42.exceptions.*;
 import ru.netology.fjd42.model.File;
 import ru.netology.fjd42.model.Token;
 import ru.netology.fjd42.model.User;
@@ -57,9 +54,8 @@ public class FilesService {
             throw new ErrorInputDataException("Error input data");
         }
         File file = filesRepository.findByFilenameAndOwner(fileName, owner).orElseThrow(
-                () -> new ErrorDeleteFileException("Error download file")
+                () -> new ErrorDownloadFileException("Error download file")
         );
-//        return new FileSchema(file.getFilename(), file.getContent());
         return file.getContent();
     }
 
@@ -82,10 +78,6 @@ public class FilesService {
             throw new ErrorInputDataException("Error input data");
         }
         List<File> fileList = filesRepository.findAllByOwner(owner);
-
-//        if (fileList.isEmpty()) {
-//            throw new ErrorGettingFileListException("Error getting file list");
-//        }
         return fileList.stream()
                 .map(obj -> new FileSizeSchema(obj.getFilename(), obj.getContent().length))
                 .limit(limit)

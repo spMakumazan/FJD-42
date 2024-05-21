@@ -39,4 +39,9 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ErrorSchema> egflHandler(ErrorGettingFileListException exception) {
         return new ResponseEntity<>(new ErrorSchema(exception.getMessage(), 500), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(ErrorDownloadFileException.class)
+    public ResponseEntity<ErrorSchema> edlfHandler(ErrorDownloadFileException exception) {
+        return new ResponseEntity<>(new ErrorSchema(exception.getMessage(), 500), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
